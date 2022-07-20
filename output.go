@@ -23,6 +23,7 @@ func outputFormattedLogLine(out io.Writer, lineData map[string]any) {
 	tsTimeStr := "0000-00-00T00:00:00.000000-00:00"
 	if tsTime, err := getTime(lineData, "ts"); err == nil {
 		tsTimeStr = tsTime.Format(time.RFC3339Nano)
+		delete(lineData, "ts")
 	}
 
 	level, err := getString(lineData, "level")
