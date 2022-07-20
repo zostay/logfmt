@@ -2,13 +2,26 @@ package main
 
 import (
 	"errors"
-	"strings"
+	"time"
 )
 
 var (
 	errType = errors.New("value is of wrong type")
 	errSet  = errors.New("value is not set")
 )
+
+// getTime retrieves a time.Time from the giben generic map.
+func getTime(d map[string]any, k string) (time.Time, error) {
+	if ti, ok := d[k]; ok {
+		if t, tok := ti.(time.Time); tok {
+			return t, nil
+		} else {
+			return time.Time{}, errType
+		}
+	} else {
+		return time.Time{}, errSet
+	}
+}
 
 // getFloat64 retrieves a float64 value from the given generic map.
 func getFloat64(d map[string]any, k string) (float64, error) {
@@ -23,6 +36,8 @@ func getFloat64(d map[string]any, k string) (float64, error) {
 	}
 }
 
+// getTime retrieves a time value from the given
+
 // getString retrieves a string value from the given generic map.
 func getString(d map[string]any, k string) (string, error) {
 	if si, ok := d[k]; ok {
@@ -34,11 +49,4 @@ func getString(d map[string]any, k string) (string, error) {
 	} else {
 		return "", errSet
 	}
-}
-
-// insertIndent is a function that will insert i spaces before each start of
-// line in the given string.
-func insertIndent(st string, i int) string {
-	indent := strings.Repeat(" ", i)
-	return indent + strings.ReplaceAll(st, "\n", "\n"+indent)
 }
