@@ -27,22 +27,26 @@ func convertGenericTimestampToTime(lineData map[string]any) {
 	}
 
 	tsf, err := getFloat64(lineData, "ts")
-	if err != nil {
+	if err == nil {
 		s, n := math.Modf(tsf)
 		lineData["ts"] = time.Unix(int64(s), int64(n))
 		return
 	}
 
 	tss, err := getString(lineData, "ts")
-	if err != nil {
-		t, err := time.Parse(time.RFC3339Nano, tss)
-		if err != nil {
-			lineData["ts"] = time.Time{}
-		} else {
+	if err == nil {
+		tryFormats := []string{time.RFC3339Nano}
+		for _, tfmt := range tryFormats {
+			t, err := time.Parse(tfmt, tss)
+			if err != nil {
+				continue
+			}
 			lineData["ts"] = t
+			return
 		}
-		return
 	}
+
+	lineData["ts"] = time.Time{}
 }
 
 // parseJsonLogLine tries to parse the log line as JSON and returns a generic map
