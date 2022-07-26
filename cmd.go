@@ -18,11 +18,13 @@ var (
 	}
 	outputFile   string
 	appendToFile bool
+	colorize     string
 )
 
 func init() {
 	cmd.Flags().StringVarP(&outputFile, "output", "o", "-", "output file write to or - for standard output")
 	cmd.Flags().BoolVarP(&appendToFile, "append", "a", false, "set to append to existing output")
+	cmd.Flags().StringVarP(&colorize, "color", "c", "auto", "set the colorize mode (auto, on, off)")
 }
 
 // setupInput sets up the input file handle based on command-line input or returns err.
@@ -67,6 +69,18 @@ func onErrReportAndQuit(err error) {
 	}
 }
 
+func setupColorizer() *SugaredColorizer {
+	var colorizer *SugaredColorizer
+	if colorize == "off" {
+		colorizer = NewSugaredColorizer(&ColorOff{})
+	} else if colorize == "on" {
+		colorizer = NewSugaredColorizer(NewColorOn(DefaultPalette))
+	} else {
+		colorizer = NewSugaredColorizer(NewColorAuto())
+	}
+	return colorizer
+}
+
 // FormatLogLines ingests a file or standard input, breaks the input into lines,
 // and attempts to parse each line. If parsing is successful, if formats that
 // log line prettily. If parsing fails, the line is output as-is. It keeps going
@@ -78,14 +92,16 @@ func FormatLogLines(command *cobra.Command, args []string) {
 	output, err := setupOutput()
 	onErrReportAndQuit(err)
 
+	colorizer := setupColorizer()
+
 	buffed := bufio.NewScanner(input)
 	for buffed.Scan() {
 		line := buffed.Text()
 		lineData, err := parseLogLine(buffed.Bytes())
 		if err != nil {
-			outputRawLogLine(output, line)
+			outputRawLogLine(output, colorizer, line)
 		} else {
-			outputFormattedLogLine(output, lineData)
+			outputFormattedLogLine(output, colorizer, lineData)
 		}
 	}
 }
