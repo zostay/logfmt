@@ -21,6 +21,10 @@ var lineParsers = []LineParser{
 	parseZapConsoleLikeLogLine,
 }
 
+const (
+	RFC3339NanoAlt = "2006-01-02T15:04:05.999999999Z0700"
+)
+
 func convertGenericTimestampToTime(lineData map[string]any) {
 	if _, ok := lineData["ts"]; !ok {
 		return
@@ -35,7 +39,7 @@ func convertGenericTimestampToTime(lineData map[string]any) {
 
 	tss, err := getString(lineData, "ts")
 	if err == nil {
-		tryFormats := []string{time.RFC3339Nano}
+		tryFormats := []string{time.RFC3339Nano, RFC3339NanoAlt}
 		for _, tfmt := range tryFormats {
 			t, err := time.Parse(tfmt, tss)
 			if err != nil {
