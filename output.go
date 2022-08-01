@@ -73,7 +73,7 @@ func outputFormattedLogLine(out io.Writer, c *SugaredColorizer, lineData map[str
 	}
 }
 
-var dataLiteral = regexp.MustCompile(`"(?:[^\\"]+|\\\\|\\")*"|'(?:[^\\']+|\\\\|\\')*'|\d+`)
+var dataLiteral = regexp.MustCompile(`"(?:[^\\"]+|\\.)*"|'(?:[^\\']+|\\.)*'|\d+`)
 
 // colorizeDataBytes finds strings and numbers and colorizes them using
 // "data-literal."
