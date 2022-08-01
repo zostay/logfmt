@@ -10,7 +10,7 @@ var (
 	errSet  = errors.New("value is not set")
 )
 
-// getTime retrieves a time.Time from the giben generic map.
+// getTime retrieves a time.Time from the given generic map.
 func getTime(d map[string]any, k string) (time.Time, error) {
 	if ti, ok := d[k]; ok {
 		if t, tok := ti.(time.Time); tok {

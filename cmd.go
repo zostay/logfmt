@@ -34,7 +34,7 @@ func setupInput(args []string) (io.Reader, error) {
 		var err error
 		input, err = os.Open(args[0])
 		if err != nil {
-			return nil, fmt.Errorf("Failed to open %q: %v", args[0], err)
+			return nil, fmt.Errorf("failed to open %q: %v", args[0], err)
 		}
 	}
 
@@ -54,17 +54,17 @@ func setupOutput() (io.Writer, error) {
 		}
 		output, err = os.OpenFile(outputFile, flags, 0644)
 		if err != nil {
-			return nil, fmt.Errorf("Failed to %s %q: %v", mode, output, err)
+			return nil, fmt.Errorf("failed to %s %q: %v", mode, output, err)
 		}
 	}
 
 	return output, nil
 }
 
-// onErrReporteportAndQuit handles an error by writing it to standard error and exiting.
+// onErrReportAndQuit handles an error by writing it to standard error and exiting.
 func onErrReportAndQuit(err error) {
 	if err != nil {
-		fmt.Fprint(os.Stderr, err)
+		_, _ = fmt.Fprint(os.Stderr, err)
 		os.Exit(1)
 	}
 }
@@ -85,7 +85,7 @@ func setupColorizer() *SugaredColorizer {
 // and attempts to parse each line. If parsing is successful, if formats that
 // log line prettily. If parsing fails, the line is output as-is. It keeps going
 // until the input handle closes.
-func FormatLogLines(command *cobra.Command, args []string) {
+func FormatLogLines(_ *cobra.Command, args []string) {
 	input, err := setupInput(args)
 	onErrReportAndQuit(err)
 

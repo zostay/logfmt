@@ -45,8 +45,8 @@ func outputFormattedLogLine(out io.Writer, c *SugaredColorizer, lineData map[str
 
 	levelColorName := LevelToColorName(level)
 	if len(lineData) > 0 {
-		// If this errors, we have something in the logs that can be parsed from JSON
-		// but not put back into JSON? Seems unlikely.
+		// If this has an error, we have something in the logs that can be
+		// parsed from JSON but not put back into JSON? Seems unlikely.
 		lineDataBytes, _ := json.Marshal(lineData)
 		coloredDataBytes := colorizeDataBytes(c, lineDataBytes)
 
