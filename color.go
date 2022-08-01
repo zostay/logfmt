@@ -25,6 +25,8 @@ const (
 	ColorLevelFatal  ColorName = "level-fatal"
 	ColorMessage     ColorName = "message"
 	ColorStackTrace  ColorName = "stacktrace"
+	ColorData        ColorName = "data"
+	ColorDataLiteral ColorName = "data-literal"
 )
 
 func RGB(r, g, b uint8) gc.Color {
@@ -36,14 +38,16 @@ type Palette map[ColorName]gc.Color
 var DefaultPalette = Palette{
 	ColorNormal:      RGB(0xdd, 0xdd, 0xdd),
 	ColorDateTime:    RGB(0xdd, 0xdd, 0xdd),
-	ColorLevelDebug:  RGB(0xdd, 0xdd, 0xdd),
+	ColorLevelDebug:  RGB(0x66, 0x66, 0xff),
 	ColorLevelInfo:   RGB(0x14, 0xff, 0xff),
 	ColorLevelWarn:   RGB(0xff, 0xff, 0x00),
 	ColorLevelError:  RGB(0xff, 0xd7, 0x00),
 	ColorLevelDPanic: RGB(0xff, 0x5f, 0x00),
 	ColorLevelFatal:  RGB(0xff, 0x00, 0x00),
-	ColorMessage:     RGB(0xdd, 0xdd, 0xdd),
+	ColorMessage:     RGB(0xff, 0xff, 0xff),
 	ColorStackTrace:  RGB(0x76, 0x76, 0x76),
+	ColorData:        RGB(0xaa, 0xaa, 0xaa),
+	ColorDataLiteral: RGB(0x88, 0x88, 0x99),
 }
 
 type PlainColorizer interface {

@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"regexp"
 	"strings"
 	"time"
 )
 
 // outputRawLogLine outputs a line that failed to be parsed.
 func outputRawLogLine(out io.Writer, c *SugaredColorizer, line string) {
-	fmt.Fprintln(out, c.C(ColorNormal, line))
+	_, _ = fmt.Fprintln(out, c.C(ColorNormal, line))
 }
 
 // outputFormattedLogLine will take a parsed log line and pretty print it. The
@@ -47,16 +48,18 @@ func outputFormattedLogLine(out io.Writer, c *SugaredColorizer, lineData map[str
 		// If this errors, we have something in the logs that can be parsed from JSON
 		// but not put back into JSON? Seems unlikely.
 		lineDataBytes, _ := json.Marshal(lineData)
-		fmt.Fprint(out,
+		coloredDataBytes := colorizeDataBytes(c, lineDataBytes)
+
+		_, _ = fmt.Fprint(out,
 			c.Cf(ColorNormal, "%s %-6s %s %s\n",
 				c.C(ColorDateTime, tsTimeStr),
 				c.C(levelColorName, level),
 				c.C(ColorMessage, msg),
-				lineDataBytes,
+				c.C(ColorData, string(coloredDataBytes)),
 			),
 		)
 	} else {
-		fmt.Fprint(out,
+		_, _ = fmt.Fprint(out,
 			c.Cf(ColorNormal, "%s %-6s %s\n",
 				c.C(ColorDateTime, tsTimeStr),
 				c.C(levelColorName, level),
@@ -66,8 +69,18 @@ func outputFormattedLogLine(out io.Writer, c *SugaredColorizer, lineData map[str
 	}
 
 	if st != "" {
-		fmt.Fprintln(out, c.C(ColorStackTrace, insertIndent(st, 4)))
+		_, _ = fmt.Fprintln(out, c.C(ColorStackTrace, insertIndent(st, 4)))
 	}
+}
+
+var dataLiteral = regexp.MustCompile(`"(?:[^\\"]+|\\\\|\\")*"|'(?:[^\\']+|\\\\|\\')*'|\d+`)
+
+// colorizeDataBytes finds strings and numbers and colorizes them using
+// "data-literal."
+func colorizeDataBytes(c *SugaredColorizer, bs []byte) []byte {
+	return dataLiteral.ReplaceAllFunc(bs, func(mbs []byte) []byte {
+		return []byte(c.C(ColorDataLiteral, string(mbs)))
+	})
 }
 
 // insertIndent is a function that will insert i spaces before each start of
