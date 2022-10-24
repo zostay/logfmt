@@ -33,39 +33,44 @@ func outputFormattedLogLine(out io.Writer, c *SugaredColorizer, lineData map[str
 	}
 	level = strings.ToUpper(level)
 
-	msg, _ := getString(lineData, "msg")
+	msg, err := getString(lineData, "msg")
 	if err == nil {
 		delete(lineData, "msg")
 	}
 
-	st, _ := getString(lineData, "stacktrace")
+	error, err := getString(lineData, "error")
+	if err == nil {
+		delete(lineData, "error")
+	}
+
+	st, err := getString(lineData, "stacktrace")
 	if err == nil {
 		delete(lineData, "stacktrace")
 	}
 
+	f := "%s %-6s %s"
 	levelColorName := LevelToColorName(level)
+	args := []any{
+		c.C(ColorDateTime, tsTimeStr),
+		c.C(levelColorName, level),
+		c.C(ColorMessage, msg),
+	}
+
 	if len(lineData) > 0 {
 		// If this has an error, we have something in the logs that can be
 		// parsed from JSON but not put back into JSON? Seems unlikely.
 		lineDataBytes, _ := json.Marshal(lineData)
 		coloredDataBytes := colorizeDataBytes(c, lineDataBytes)
 
-		_, _ = fmt.Fprint(out,
-			c.Cf(ColorNormal, "%s %-6s %s %s\n",
-				c.C(ColorDateTime, tsTimeStr),
-				c.C(levelColorName, level),
-				c.C(ColorMessage, msg),
-				c.C(ColorData, string(coloredDataBytes)),
-			),
-		)
-	} else {
-		_, _ = fmt.Fprint(out,
-			c.Cf(ColorNormal, "%s %-6s %s\n",
-				c.C(ColorDateTime, tsTimeStr),
-				c.C(levelColorName, level),
-				c.C(ColorMessage, msg),
-			),
-		)
+		f += " %s"
+		args = append(args, c.C(ColorData, string(coloredDataBytes)))
+	}
+
+	f += "\n"
+	_, _ = fmt.Fprintf(out, f, args...)
+
+	if error != "" {
+		fmt.Fprintln(out, c.C(ColorLevelError, strings.TrimSpace(error)))
 	}
 
 	if st != "" {
