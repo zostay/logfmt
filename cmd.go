@@ -70,6 +70,11 @@ func onErrReportAndQuit(err error) {
 }
 
 func setupColorizer() *SugaredColorizer {
+	// FIXME tty detection is broken, so...
+	if colorize == "auto" {
+		colorize = "on"
+	}
+
 	var colorizer *SugaredColorizer
 	if colorize == "off" {
 		colorizer = NewSugaredColorizer(&ColorOff{})
