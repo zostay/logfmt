@@ -16,15 +16,17 @@ var (
 		Args:  cobra.MaximumNArgs(1),
 		Run:   FormatLogLines,
 	}
-	outputFile   string
-	appendToFile bool
-	colorize     string
+	outputFile          string
+	appendToFile        bool
+	colorize            string
+	highlightWorryWords bool
 )
 
 func init() {
 	cmd.Flags().StringVarP(&outputFile, "output", "o", "-", "output file write to or - for standard output")
 	cmd.Flags().BoolVarP(&appendToFile, "append", "a", false, "set to append to existing output")
 	cmd.Flags().StringVarP(&colorize, "color", "c", "auto", "set the colorize mode (auto, on, off)")
+	cmd.Flags().BoolVar(&highlightWorryWords, "highlight-worry-words", true, "enable highlighting of worry-words")
 }
 
 // setupInput sets up the input file handle based on command-line input or returns err.

@@ -11,6 +11,9 @@ import (
 
 // outputRawLogLine outputs a line that failed to be parsed.
 func outputRawLogLine(out io.Writer, c *SugaredColorizer, line string) {
+	if highlightWorryWords {
+		line = HighlightWorries(c, line)
+	}
 	_, _ = fmt.Fprintln(out, c.C(ColorNormal, line))
 }
 
@@ -46,6 +49,10 @@ func outputFormattedLogLine(out io.Writer, c *SugaredColorizer, lineData map[str
 	st, err := getString(lineData, "stacktrace")
 	if err == nil {
 		delete(lineData, "stacktrace")
+	}
+
+	if highlightWorryWords {
+		msg = HighlightWorries(c, msg)
 	}
 
 	f := "%s %-6s %s"
