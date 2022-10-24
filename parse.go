@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"regexp"
 	"strconv"
@@ -18,6 +19,12 @@ type LineParser func([]byte) (map[string]any, error)
 
 var lineParsers = []LineParser{
 	parseJsonLogLine,
+	parseZapConsoleLikeLogLine,
+}
+
+var lineParsersWithAccessLogs = []LineParser{
+	parseJsonLogLine,
+	parseAccessLogLine,
 	parseZapConsoleLikeLogLine,
 }
 
@@ -70,10 +77,41 @@ func parseJsonLogLine(line []byte) (map[string]any, error) {
 var (
 	MillisDateMatch = regexp.MustCompile(`^\d\.\d+[eE][+]\d+`)
 
+	// why doesn't golang's PCRE support the /x option... STOP THE INSANITY YOU RE
+	// IMPLEMENTERS! IT CAN BE READABLE IF YOU JUST IMPLEMENT THE READABILITY
+	// IMPROVING FEATURES!!!!
+	IstioDefaultLogLineMatch = regexp.MustCompile(`^\[(?P<startTime>[^\\]+)] "(?P<requestLine>[^"]+)" (?P<responseCode>\S+) (?P<responseFlags>\S+) (?P<responseCodeDetails>\S+) (?P<connectionTerminationDetails>\S+) "(?P<upstreamTransportFailureReason>[^"]+)" (?P<bytesRecieved>\S+) (?P<bytesSent>\S+) (?P<duration>\S+) (?P<responseUpstreamTime>\S+) "(?P<forwardedFor>[^"]+)" "(?P<userAgent>[^"]+)" "(?P<requestId>[^"]+)" "(?P<authority>[^"]+)" "(?P<upstreamHost>[^"]+)" (?P<upstreamCluster>\S+) (?P<upstreamLocalAddress>\S+) (?P<downstreamLocalAddress>\S+) (?P<downstreamRemoteAddress>\S+) (?P<requestedServerNames>\S+) (?P<routeName>\S+)$`)
+
 	Word = regexp.MustCompile(`^\S+`)
 
 	WS = " \t\n\r"
 )
+
+// TODO Support other access log formats
+
+// parseAccessLogLine attempts to parse line as an Envoy Proxy-style access log.
+func parseAccessLogLine(line []byte) (map[string]any, error) {
+	res := make(map[string]any, 30)
+	if sm := IstioDefaultLogLineMatch.FindSubmatch(line); sm != nil {
+		for _, name := range IstioDefaultLogLineMatch.SubexpNames()[1:] {
+			i := IstioDefaultLogLineMatch.SubexpIndex(name)
+			if name == "startTime" {
+				ts, err := time.Parse("2006-01-02T15:04:05.000Z", string(sm[i]))
+				if err == nil {
+					res["ts"] = ts
+				}
+			} else if name == "requestLine" {
+				res["msg"] = string(sm[i])
+			} else {
+				res[name] = string(sm[i])
+			}
+		}
+	} else {
+		return nil, fmt.Errorf("not an Envoy Proxy access log line")
+	}
+
+	return res, nil
+}
 
 // parseTimestamp parses a timestamp prefix from the line and returns it or
 // returns an error.
@@ -204,7 +242,12 @@ func parseZapConsoleLikeLogLine(line []byte) (map[string]any, error) {
 // parseLogLine tries to parse the log line from whatever format it appears to be
 // in, trying one parser after another until it hits the fallback parser.
 func parseLogLine(line []byte) (map[string]any, error) {
-	for _, lineParser := range lineParsers {
+	lp := lineParsers
+	if experimentalAccessLogs {
+		lp = lineParsersWithAccessLogs
+	}
+
+	for _, lineParser := range lp {
 		if lineData, err := lineParser(line); err == nil {
 			return lineData, nil
 		}
