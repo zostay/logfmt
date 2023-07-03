@@ -90,7 +90,7 @@ var (
 // TODO Support other access log formats
 
 // parseAccessLogLine attempts to parse line as an Envoy Proxy-style access log.
-func parseAccessLogLine(line []byte) (map[string]any, error) {
+func parseAccessLogLine(line []byte, tsField string) (map[string]any, error) {
 	res := make(map[string]any, 30)
 	if sm := IstioDefaultLogLineMatch.FindSubmatch(line); sm != nil {
 		for _, name := range IstioDefaultLogLineMatch.SubexpNames()[1:] {
@@ -98,7 +98,7 @@ func parseAccessLogLine(line []byte) (map[string]any, error) {
 			if name == "startTime" {
 				ts, err := time.Parse("2006-01-02T15:04:05.000Z", string(sm[i]))
 				if err == nil {
-					res["ts"] = ts
+					res[tsField] = ts
 				}
 			} else if name == "requestLine" {
 				res["msg"] = string(sm[i])
