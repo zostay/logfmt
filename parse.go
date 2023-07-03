@@ -15,7 +15,7 @@ var (
 	ErrUnparseable = errors.New("unable to parse log line")
 )
 
-type LineParser func([]byte) (map[string]any, error)
+type LineParser func([]byte, string) (map[string]any, error)
 
 var lineParsers = []LineParser{
 	parseJsonLogLine,
@@ -32,19 +32,19 @@ const (
 	RFC3339NanoAlt = "2006-01-02T15:04:05.999999999Z0700"
 )
 
-func convertGenericTimestampToTime(lineData map[string]any) {
-	if _, ok := lineData["ts"]; !ok {
+func convertGenericTimestampToTime(lineData map[string]any, tsField string) {
+	if _, ok := lineData[tsField]; !ok {
 		return
 	}
 
-	tsf, err := getFloat64(lineData, "ts")
+	tsf, err := getFloat64(lineData, tsField)
 	if err == nil {
 		s, n := math.Modf(tsf)
-		lineData["ts"] = time.Unix(int64(s), int64(n))
+		lineData[tsField] = time.Unix(int64(s), int64(n))
 		return
 	}
 
-	tss, err := getString(lineData, "ts")
+	tss, err := getString(lineData, tsField)
 	if err == nil {
 		tryFormats := []string{time.RFC3339Nano, RFC3339NanoAlt}
 		for _, tfmt := range tryFormats {
@@ -52,24 +52,24 @@ func convertGenericTimestampToTime(lineData map[string]any) {
 			if err != nil {
 				continue
 			}
-			lineData["ts"] = t
+			lineData[tsField] = t
 			return
 		}
 	}
 
-	lineData["ts"] = time.Time{}
+	lineData[tsField] = time.Time{}
 }
 
 // parseJsonLogLine tries to parse the log line as JSON and returns a generic map
 // containing the result.
-func parseJsonLogLine(line []byte) (map[string]any, error) {
+func parseJsonLogLine(line []byte, tsField string) (map[string]any, error) {
 	lineData := map[string]any{}
 	err := json.Unmarshal(line, &lineData)
 	if err != nil {
 		return nil, err
 	}
 
-	convertGenericTimestampToTime(lineData)
+	convertGenericTimestampToTime(lineData, tsField)
 
 	return lineData, nil
 }
@@ -193,7 +193,7 @@ func parseStructure(line []byte) (map[string]any, []byte, error) {
 
 // parseZapConsoleLikeLogLine parses the console encoder logger, which is used by
 // the development logger configurations in Uber's zap logger.
-func parseZapConsoleLikeLogLine(line []byte) (map[string]any, error) {
+func parseZapConsoleLikeLogLine(line []byte, tsField string) (map[string]any, error) {
 	var (
 		ts                        time.Time
 		level, loggerName, caller string
@@ -230,7 +230,7 @@ func parseZapConsoleLikeLogLine(line []byte) (map[string]any, error) {
 		lineData = make(map[string]any, 5)
 	}
 
-	lineData["ts"] = ts
+	lineData[tsField] = ts
 	lineData["level"] = level
 	lineData["logger"] = loggerName
 	lineData["caller"] = caller
@@ -241,14 +241,14 @@ func parseZapConsoleLikeLogLine(line []byte) (map[string]any, error) {
 
 // parseLogLine tries to parse the log line from whatever format it appears to be
 // in, trying one parser after another until it hits the fallback parser.
-func parseLogLine(line []byte) (map[string]any, error) {
+func parseLogLine(line []byte, tsField string) (map[string]any, error) {
 	lp := lineParsers
 	if experimentalAccessLogs {
 		lp = lineParsersWithAccessLogs
 	}
 
 	for _, lineParser := range lp {
-		if lineData, err := lineParser(line); err == nil {
+		if lineData, err := lineParser(line, tsField); err == nil {
 			return lineData, nil
 		}
 	}

@@ -6,6 +6,7 @@ import (
 	"io"
 	"regexp"
 	"strings"
+	"text/template"
 	"time"
 )
 
@@ -23,32 +24,35 @@ func outputRawLogLine(out io.Writer, c *SugaredColorizer, line string) {
 // EXTRA is omitted if no additional fields are present. If additional fields
 // are present, those are converted back to JSON and rendered. If a stacktrace
 // is present, it will be output indented below the log line.
-func outputFormattedLogLine(out io.Writer, c *SugaredColorizer, lineData map[string]any) {
+func outputFormattedLogLine(
+	out io.Writer,
+	c *SugaredColorizer,
+	lineData map[string]any,
+	tsField, msgFormat string,
+	trimFields []string,
+) {
 	tsTimeStr := "0000-00-00T00:00:00.000000-00:00"
-	if tsTime, err := getTime(lineData, "ts"); err == nil {
+	if tsTime, err := getTime(lineData, tsField); err == nil {
 		tsTimeStr = tsTime.Format(time.RFC3339Nano)
-		delete(lineData, "ts")
 	}
 
-	level, err := getString(lineData, "level")
-	if err == nil {
-		delete(lineData, "level")
-	}
+	level, _ := getString(lineData, "level")
 	level = strings.ToUpper(level)
 
-	msg, err := getString(lineData, "msg")
-	if err == nil {
-		delete(lineData, "msg")
-	}
+	sw := &strings.Builder{}
+	msgT := template.Must(template.New("msg").Parse(msgFormat))
+	_ = msgT.Execute(sw, lineData)
+	msg := sw.String()
+	// msg, _ := getString(lineData, "msg")
+	// if err == nil {
+	// 	delete(lineData, "msg")
+	// }
 
-	error, err := getString(lineData, "error")
-	if err == nil {
-		delete(lineData, "error")
-	}
+	error, _ := getString(lineData, "error")
+	st, _ := getString(lineData, "stacktrace")
 
-	st, err := getString(lineData, "stacktrace")
-	if err == nil {
-		delete(lineData, "stacktrace")
+	for _, field := range trimFields {
+		delete(lineData, field)
 	}
 
 	if highlightWorryWords {

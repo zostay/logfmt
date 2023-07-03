@@ -19,7 +19,7 @@ func TestConvertGenericTimestampToTime(t *testing.T) {
 			"ts": ds,
 		}
 
-		convertGenericTimestampToTime(lineData)
+		convertGenericTimestampToTime(lineData, "ts")
 
 		require.IsType(t, time.Time{}, lineData["ts"], "date %s parsed type", ds)
 

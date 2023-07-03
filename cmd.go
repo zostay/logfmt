@@ -21,6 +21,9 @@ var (
 	colorize               string
 	highlightWorryWords    bool
 	experimentalAccessLogs bool
+	tsField                string
+	msgFormat              string
+	trimFields             []string
 )
 
 func init() {
@@ -29,6 +32,9 @@ func init() {
 	cmd.Flags().StringVarP(&colorize, "color", "c", "auto", "set the colorize mode (auto, on, off)")
 	cmd.Flags().BoolVar(&highlightWorryWords, "highlight-worry-words", true, "enable highlighting of worry-words")
 	cmd.Flags().BoolVar(&experimentalAccessLogs, "experimental-access-logs", false, "enable access log parsing")
+	cmd.Flags().StringVarP(&tsField, "timestamp-field", "t", "ts", "set the timestamp field name")
+	cmd.Flags().StringVarP(&msgFormat, "message-format", "m", "{{.msg}}", "set the message format using gotemplate")
+	cmd.Flags().StringArrayVarP(&trimFields, "trim-field", "T", []string{"level", "msg", "stacktrace", "error"}, "set fields to trim from the output")
 }
 
 // setupInput sets up the input file handle based on command-line input or returns err.
@@ -106,11 +112,12 @@ func FormatLogLines(_ *cobra.Command, args []string) {
 	buffed := bufio.NewScanner(input)
 	for buffed.Scan() {
 		line := buffed.Text()
-		lineData, err := parseLogLine(buffed.Bytes())
+		lineData, err := parseLogLine(buffed.Bytes(), tsField)
 		if err != nil {
 			outputRawLogLine(output, colorizer, line)
 		} else {
-			outputFormattedLogLine(output, colorizer, lineData)
+			trimFields = append(trimFields, tsField)
+			outputFormattedLogLine(output, colorizer, lineData, tsField, msgFormat, trimFields)
 		}
 	}
 }
