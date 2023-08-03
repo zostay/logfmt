@@ -22,7 +22,10 @@ var (
 	highlightWorryWords    bool
 	experimentalAccessLogs bool
 	tsField                string
+	msgField               string
 	msgFormat              string
+	lvlField               string
+	callerField            string
 	trimFields             []string
 )
 
@@ -33,7 +36,10 @@ func init() {
 	cmd.Flags().BoolVar(&highlightWorryWords, "highlight-worry-words", true, "enable highlighting of worry-words")
 	cmd.Flags().BoolVar(&experimentalAccessLogs, "experimental-access-logs", false, "enable access log parsing")
 	cmd.Flags().StringVarP(&tsField, "timestamp-field", "t", "ts", "set the timestamp field name")
-	cmd.Flags().StringVarP(&msgFormat, "message-format", "m", "{{.msg}}", "set the message format using gotemplate")
+	cmd.Flags().StringVar(&msgField, "message-field", "msg", "set the message field name")
+	cmd.Flags().StringVar(&lvlField, "level-field", "level", "set the level field name")
+	cmd.Flags().StringVar(&callerField, "caller-field", "caller", "set the caller field name")
+	cmd.Flags().StringVarP(&msgFormat, "message-format", "m", "", "set the message format using gotemplate")
 	cmd.Flags().StringArrayVarP(&trimFields, "trim-field", "T", []string{"level", "msg", "stacktrace", "error"}, "set fields to trim from the output")
 }
 
@@ -117,6 +123,9 @@ func FormatLogLines(_ *cobra.Command, args []string) {
 			outputRawLogLine(output, colorizer, line)
 		} else {
 			trimFields = append(trimFields, tsField)
+			if msgFormat == "" {
+				msgFormat = fmt.Sprintf("{{index . %q}}", msgField)
+			}
 			outputFormattedLogLine(output, colorizer, lineData, tsField, msgFormat, trimFields)
 		}
 	}

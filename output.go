@@ -36,11 +36,11 @@ func outputFormattedLogLine(
 		tsTimeStr = tsTime.Format(time.RFC3339Nano)
 	}
 
-	level, _ := getString(lineData, "level")
+	level, _ := getString(lineData, lvlField)
 	level = strings.ToUpper(level)
 
 	sw := &strings.Builder{}
-	msgT := template.Must(template.New("msg").Parse(msgFormat))
+	msgT := template.Must(template.New(msgField).Parse(msgFormat))
 	_ = msgT.Execute(sw, lineData)
 	msg := sw.String()
 	// msg, _ := getString(lineData, "msg")

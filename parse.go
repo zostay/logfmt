@@ -231,10 +231,10 @@ func parseZapConsoleLikeLogLine(line []byte, tsField string) (map[string]any, er
 	}
 
 	lineData[tsField] = ts
-	lineData["level"] = level
+	lineData[lvlField] = level
 	lineData["logger"] = loggerName
-	lineData["caller"] = caller
-	lineData["msg"] = string(line)
+	lineData[callerField] = caller
+	lineData[msgField] = string(line)
 
 	return lineData, nil
 }
