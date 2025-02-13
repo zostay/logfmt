@@ -12,6 +12,7 @@ func TestConvertGenericTimestampToTime(t *testing.T) {
 	testDates := map[string]time.Time{
 		"2022-07-21T11:12:35.540Z":     time.Date(2022, 7, 21, 11, 12, 35, 540_000_000, time.UTC),
 		"2022-07-27T13:09:39.381-0500": time.Date(2022, 7, 27, 13, 9, 39, 381_000_000, time.FixedZone("UTC-5", -5*60*60)),
+		"2025-02-13 00:29:11,321":      time.Date(2025, 2, 13, 0, 29, 11, 321_000_000, time.UTC),
 	}
 
 	for ds, dt := range testDates {

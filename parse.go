@@ -30,6 +30,7 @@ var lineParsersWithAccessLogs = []LineParser{
 
 const (
 	RFC3339NanoAlt = "2006-01-02T15:04:05.999999999Z0700"
+	PythonLogging  = "2006-01-02 15:04:05,999"
 )
 
 func convertGenericTimestampToTime(lineData map[string]any, tsField string) {
@@ -46,7 +47,7 @@ func convertGenericTimestampToTime(lineData map[string]any, tsField string) {
 
 	tss, err := getString(lineData, tsField)
 	if err == nil {
-		tryFormats := []string{time.RFC3339Nano, RFC3339NanoAlt}
+		tryFormats := []string{time.RFC3339Nano, RFC3339NanoAlt, PythonLogging}
 		for _, tfmt := range tryFormats {
 			t, err := time.Parse(tfmt, tss)
 			if err != nil {
