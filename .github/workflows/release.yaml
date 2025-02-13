@@ -58,7 +58,7 @@ jobs:
         env:
           GOOS: darwin
           GOARCH: amd64
-        run: go build -o today-$RELEASE_VERSION-$GOOS ./
+        run: go build -o today-$RELEASE_VERSION-$GOOS-$GOARCH ./
       - name: Create Release
         run: gh release create -t "v$RELEASE_VERSION" "v$RELEASE_VERSION" --draft --notes-file=release-notes.md
       - name: Upload Linux 64-bit Binary
