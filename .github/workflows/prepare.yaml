@@ -45,14 +45,14 @@ jobs:
           env:
             GOOS: linux
             GOARCH: amd64
-          run: go build -o today-$RELEASE_VERSION-$GOOS-$GOARCH ./
+          run: go build -o logfmt-$RELEASE_VERSION-$GOOS-$GOARCH ./
         - name: Apple Silicon Build
           env:
             GOOS: darwin
             GOARCH: arm64
-          run: go build -o today-$RELEASE_VERSION-$GOOS-$GOARCH ./
+          run: go build -o logfmt-$RELEASE_VERSION-$GOOS-$GOARCH ./
         - name: Apple Intel Build
           env:
             GOOS: darwin
             GOARCH: amd64
-          run: go build -o today-$RELEASE_VERSION-$GOOS-$GOARCH ./
+          run: go build -o logfmt-$RELEASE_VERSION-$GOOS-$GOARCH ./
