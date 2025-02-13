@@ -21,8 +21,8 @@ jobs:
       - name: Version Check
         run: |
           if ! grep -q "$RELEASE_VERSION" version.txt; then
-            echo "version.txt does not match $RELEASE_VERSION!"
-            exit 1
+              echo "version.txt does not match $RELEASE_VERSION!"
+              exit 1
           fi
       - name: Set Time Zone to US Central
         run: sudo timedatectl set-timezone America/Chicago
