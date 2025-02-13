@@ -2,12 +2,16 @@ package main
 
 import (
 	"bufio"
+	_ "embed"
 	"fmt"
 	"io"
 	"os"
 
 	"github.com/spf13/cobra"
 )
+
+//go:embed version.txt
+var Version string
 
 var (
 	cmd = &cobra.Command{
@@ -27,6 +31,7 @@ var (
 	lvlField               string
 	callerField            string
 	trimFields             []string
+	version                bool
 )
 
 func init() {
@@ -41,6 +46,7 @@ func init() {
 	cmd.Flags().StringVar(&callerField, "caller-field", "caller", "set the caller field name")
 	cmd.Flags().StringVarP(&msgFormat, "message-format", "m", "", "set the message format using gotemplate")
 	cmd.Flags().StringArrayVarP(&trimFields, "trim-field", "T", []string{"level", "msg", "stacktrace", "error"}, "set fields to trim from the output")
+	cmd.Flags().BoolVar(&version, "version", false, "print the version and exit")
 }
 
 // setupInput sets up the input file handle based on command-line input or returns err.
@@ -107,6 +113,11 @@ func setupColorizer() *SugaredColorizer {
 // log line prettily. If parsing fails, the line is output as-is. It keeps going
 // until the input handle closes.
 func FormatLogLines(_ *cobra.Command, args []string) {
+	if version {
+		fmt.Printf("logfmt v%s\n", Version)
+		os.Exit(0)
+	}
+
 	input, err := setupInput(args)
 	onErrReportAndQuit(err)
 
