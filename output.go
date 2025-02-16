@@ -48,7 +48,7 @@ func outputFormattedLogLine(
 	// 	delete(lineData, "msg")
 	// }
 
-	error, _ := getString(lineData, "error")
+	errorStr, _ := getString(lineData, "error")
 	st, _ := getString(lineData, "stacktrace")
 
 	for _, field := range trimFields {
@@ -68,6 +68,16 @@ func outputFormattedLogLine(
 	}
 
 	if len(lineData) > 0 {
+		if !showNull {
+			keepData := make(map[string]any, len(lineData))
+			for k, v := range lineData {
+				if v != nil {
+					keepData[k] = v
+				}
+			}
+			lineData = keepData
+		}
+
 		// If this has an error, we have something in the logs that can be
 		// parsed from JSON but not put back into JSON? Seems unlikely.
 		lineDataBytes, _ := json.Marshal(lineData)
@@ -80,8 +90,8 @@ func outputFormattedLogLine(
 	f += "\n"
 	_, _ = fmt.Fprintf(out, f, args...)
 
-	if error != "" {
-		fmt.Fprintln(out, c.C(ColorLevelError, strings.TrimSpace(error)))
+	if errorStr != "" {
+		_, _ = fmt.Fprintln(out, c.C(ColorLevelError, strings.TrimSpace(errorStr)))
 	}
 
 	if st != "" {

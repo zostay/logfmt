@@ -32,6 +32,7 @@ var (
 	callerField            string
 	trimFields             []string
 	version                bool
+	showNull               bool
 )
 
 func init() {
@@ -47,6 +48,7 @@ func init() {
 	cmd.Flags().StringVarP(&msgFormat, "message-format", "m", "", "set the message format using gotemplate")
 	cmd.Flags().StringArrayVarP(&trimFields, "trim-field", "T", []string{"level", "msg", "stacktrace", "error"}, "set fields to trim from the output")
 	cmd.Flags().BoolVar(&version, "version", false, "print the version and exit")
+	cmd.Flags().BoolVar(&showNull, "show-null", false, "show null values in output")
 }
 
 // setupInput sets up the input file handle based on command-line input or returns err.
