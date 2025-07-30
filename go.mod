@@ -6,7 +6,7 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
 	github.com/wayneashleyberry/truecolor v1.0.1
-	golang.org/x/sys v0.30.0
+	golang.org/x/sys v0.34.0
 )
 
 require (
