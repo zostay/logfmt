@@ -96,14 +96,15 @@ func parseAccessLogLine(line []byte, tsField string) (map[string]any, error) {
 	if sm := IstioDefaultLogLineMatch.FindSubmatch(line); sm != nil {
 		for _, name := range IstioDefaultLogLineMatch.SubexpNames()[1:] {
 			i := IstioDefaultLogLineMatch.SubexpIndex(name)
-			if name == "startTime" {
+			switch name {
+			case "startTime":
 				ts, err := time.Parse("2006-01-02T15:04:05.000Z", string(sm[i]))
 				if err == nil {
 					res[tsField] = ts
 				}
-			} else if name == "requestLine" {
+			case "requestLine":
 				res["msg"] = string(sm[i])
-			} else {
+			default:
 				res[name] = string(sm[i])
 			}
 		}

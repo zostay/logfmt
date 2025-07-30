@@ -102,11 +102,12 @@ func setupColorizer() *SugaredColorizer {
 	}
 
 	var colorizer *SugaredColorizer
-	if colorize == "off" {
+	switch colorize {
+	case "off":
 		colorizer = NewSugaredColorizer(&ColorOff{})
-	} else if colorize == "on" {
+	case "on":
 		colorizer = NewSugaredColorizer(NewColorOn(DefaultPalette))
-	} else {
+	default:
 		colorizer = NewSugaredColorizer(NewColorAuto())
 	}
 	return colorizer
