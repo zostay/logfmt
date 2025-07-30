@@ -48,8 +48,10 @@ func outputFormattedLogLine(
 	// 	delete(lineData, "msg")
 	// }
 
-	errorStr, _ := getString(lineData, "error")
-	st, _ := getString(lineData, "stacktrace")
+	extracts := map[string]string{}
+	for _, extractField := range extractFields {
+		extracts[extractField], _ = getString(lineData, extractField)
+	}
 
 	for _, field := range trimFields {
 		delete(lineData, field)
@@ -90,12 +92,19 @@ func outputFormattedLogLine(
 	f += "\n"
 	_, _ = fmt.Fprintf(out, f, args...)
 
-	if errorStr != "" {
-		_, _ = fmt.Fprintln(out, c.C(ColorLevelError, strings.TrimSpace(errorStr)))
-	}
+	for _, extractField := range extractFields {
+		color := ColorExtracted
+		switch extractField {
+		case "error":
+			color = ColorLevelError
+		case "stacktrace":
+			color = ColorStackTrace
+		}
 
-	if st != "" {
-		_, _ = fmt.Fprintln(out, c.C(ColorStackTrace, insertIndent(st, 4)))
+		if ex, hasEx := extracts[extractField]; hasEx && ex != "" {
+			ex = insertIndent(strings.TrimSpace(ex), 4)
+			_, _ = fmt.Fprintln(out, c.C(color, ex))
+		}
 	}
 }
 

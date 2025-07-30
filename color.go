@@ -31,6 +31,7 @@ const (
 	ColorWorryError    ColorName = "worry-err"
 	ColorWorryWarn     ColorName = "worry-warn"
 	ColorWorryCritical ColorName = "worry-crit"
+	ColorExtracted     ColorName = "extracted"
 )
 
 func RGB(r, g, b uint8) gc.Color {
@@ -56,6 +57,7 @@ var DefaultPalette = Palette{
 	ColorWorryError:    RGB(0xff, 0xd7, 0x00),
 	ColorWorryWarn:     RGB(0xff, 0xff, 0x00),
 	ColorWorryCritical: RGB(0xff, 0x5f, 0x00),
+	ColorExtracted:     RGB(0x44, 0xaa, 0xaa),
 }
 
 type PlainColorizer interface {
