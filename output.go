@@ -102,7 +102,8 @@ func outputFormattedLogLine(
 		}
 
 		if ex, hasEx := extracts[extractField]; hasEx && ex != "" {
-			_, _ = fmt.Fprintln(out, c.C(color, strings.TrimSpace(extracts[extractField])))
+			ex = insertIndent(strings.TrimSpace(ex), 4)
+			_, _ = fmt.Fprintln(out, c.C(color, ex))
 		}
 	}
 }
