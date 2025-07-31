@@ -18,7 +18,7 @@ type Config struct {
 	Colorize               string              `yaml:"colorize" mapstructure:"colorize"`
 	HighlightWorryWords    bool                `yaml:"highlight_worry_words" mapstructure:"highlight_worry_words"`
 	ExperimentalAccessLogs bool                `yaml:"experimental_access_logs" mapstructure:"experimental_access_logs"`
-	TimestampField         string              `yaml:"timestampe_field" mapstructure:"timestamp_field"`
+	TimestampField         string              `yaml:"timestamp_field" mapstructure:"timestamp_field"`
 	MessageField           string              `yaml:"message_field" mapstructure:"message_field"`
 	LevelField             string              `yaml:"level_field" mapstructure:"level_field"`
 	CallerField            string              `yaml:"caller_field" mapstructure:"caller_field"`
