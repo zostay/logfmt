@@ -1,0 +1,74 @@
+# Example .logfmt.yaml configuration file
+# This file can be placed in your home directory or in any directory where you run logfmt
+# logfmt will search upward from the current directory to find the nearest config file
+
+# Output configuration
+output_file: "-"        # "-" for stdout, or specify a file path
+append_to_file: false   # true to append to output file instead of overwriting
+colorize: "auto"        # "auto", "on", or "off"
+
+# Log processing options
+highlight_worry_words: true      # highlight error/warning keywords
+experimental_access_logs: false  # enable access log parsing
+show_null: false                 # show null values in output
+
+# Field configuration
+timestamp_field: "ts"      # field name for timestamps
+message_field: "msg"       # field name for log messages
+level_field: "level"       # field name for log levels
+caller_field: "caller"     # field name for caller information
+
+# Fields to process
+trim_fields:               # fields to remove from JSON output
+  - "level"
+  - "msg" 
+  - "stacktrace"
+  - "error"
+
+extract_fields:            # fields to extract and display separately
+  - "error"
+  - "stacktrace"
+
+# Custom worry words. These are used to identify worry words in the log
+# to highlight. Matching is whole words only, case-insensitive.
+worries:
+  info:
+    - "500"
+    - "503"
+    - "404"
+    - "400"
+    - "401"
+    - "incorrect"
+    - "invalid"
+  warn:
+    - "warning"
+    - "warn"
+  err:
+    - "error"
+    - "failure"
+    - "failed"
+    - "fail"
+  crit:
+    - "fatal"
+
+# Custom color palette
+# Colors can be specified as hex (#ff0000), hex without hash (ff0000), 
+# or RGB format (rgb(255,0,0) or 255,0,0)
+colors:
+  normal: "#dddddd"
+  "date/time": "#dddddd"
+  level-debug: "#6666ff"
+  level-info: "#14ffff"
+  level-warn: "#ffff00"
+  level-error: "#ffd700"
+  level-dpanic: "#ff5f00"
+  level-fatal: "#ff0000"
+  message: "#ffffff"
+  stacktrace: "#ff6666"
+  data: "#aaaaaa"
+  data-literal: "#88aa88"
+  worry-info: "#14ffff"
+  worry-err: "#ff0000"
+  worry-warn: "#ffff00"
+  worry-crit: "#ff5f00"
+  extracted: "#ff9999"

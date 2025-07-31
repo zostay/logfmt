@@ -81,7 +81,7 @@ var (
 	// why doesn't golang's PCRE support the /x option... STOP THE INSANITY YOU RE
 	// IMPLEMENTERS! IT CAN BE READABLE IF YOU JUST IMPLEMENT THE READABILITY
 	// IMPROVING FEATURES!!!!
-	IstioDefaultLogLineMatch = regexp.MustCompile(`^\[(?P<startTime>[^\\]+)] "(?P<requestLine>[^"]+)" (?P<responseCode>\S+) (?P<responseFlags>\S+) (?P<responseCodeDetails>\S+) (?P<connectionTerminationDetails>\S+) "(?P<upstreamTransportFailureReason>[^"]+)" (?P<bytesRecieved>\S+) (?P<bytesSent>\S+) (?P<duration>\S+) (?P<responseUpstreamTime>\S+) "(?P<forwardedFor>[^"]+)" "(?P<userAgent>[^"]+)" "(?P<requestId>[^"]+)" "(?P<authority>[^"]+)" "(?P<upstreamHost>[^"]+)" (?P<upstreamCluster>\S+) (?P<upstreamLocalAddress>\S+) (?P<downstreamLocalAddress>\S+) (?P<downstreamRemoteAddress>\S+) (?P<requestedServerNames>\S+) (?P<routeName>\S+)$`)
+	IstioDefaultLogLineMatch = regexp.MustCompile(`^\[(?P<startTime>[^\\]+)] "(?P<requestLine>[^"]+)" (?P<responseCode>\S+) (?P<responseFlags>\S+) (?P<responseCodeDetails>\S+) (?P<connectionTerminationDetails>\S+) "(?P<upstreamTransportFailureReason>[^"]+)" (?P<bytesReceived>\S+) (?P<bytesSent>\S+) (?P<duration>\S+) (?P<responseUpstreamTime>\S+) "(?P<forwardedFor>[^"]+)" "(?P<userAgent>[^"]+)" "(?P<requestId>[^"]+)" "(?P<authority>[^"]+)" "(?P<upstreamHost>[^"]+)" (?P<upstreamCluster>\S+) (?P<upstreamLocalAddress>\S+) (?P<downstreamLocalAddress>\S+) (?P<downstreamRemoteAddress>\S+) (?P<requestedServerNames>\S+) (?P<routeName>\S+)$`)
 
 	Word = regexp.MustCompile(`^\S+`)
 
