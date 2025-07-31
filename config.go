@@ -177,9 +177,7 @@ func parseColor(colorStr string) (gc.Color, error) {
 	colorStr = strings.TrimSpace(colorStr)
 
 	// Handle hex colors
-	if strings.HasPrefix(colorStr, "#") {
-		colorStr = colorStr[1:]
-	}
+	colorStr = strings.TrimPrefix(colorStr, "#")
 
 	// Try hex format (6 characters)
 	if len(colorStr) == 6 {
@@ -328,7 +326,7 @@ func InitializeConfigFile(filename string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create configuration file: %w", err)
 	}
-	defer fh.Close()
+	defer func() { _ = fh.Close() }()
 
 	enc := yaml.NewEncoder(fh)
 	enc.SetIndent(2)
