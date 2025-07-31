@@ -12,8 +12,6 @@ import (
 
 type ColorName string
 
-// These are strings because they will be used to map into a configuration file
-// someday.
 const (
 	ColorNormal        ColorName = "normal"
 	ColorDateTime      ColorName = "date/time"

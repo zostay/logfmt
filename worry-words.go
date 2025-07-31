@@ -17,7 +17,6 @@ const (
 )
 
 // WorryWords is the list of words that trigger worry-word highlighting in messages.
-// TODO This should be configurable.
 var WorryWords = map[string]WorrySeverity{
 	"500":                       WorryInfo,
 	"503":                       WorryInfo,
@@ -43,9 +42,42 @@ var worryLevelColors = map[WorrySeverity]ColorName{
 	WorryCrit: ColorWorryCritical,
 }
 
+var invertWorryWords map[WorrySeverity][]string
+
+func init() {
+	invertWorryWords = make(map[WorrySeverity][]string)
+	for word, sev := range WorryWords {
+		if _, hasSev := invertWorryWords[sev]; !hasSev {
+			invertWorryWords[sev] = []string{word}
+			continue
+		}
+		invertWorryWords[sev] = append(invertWorryWords[sev], word)
+	}
+}
+
+// setupWorries reconfigures the WorryWords, if the Worries are configured.
+func setupWorries(c *Config) {
+	if len(c.WorryWords) == 0 {
+		return
+	}
+
+	ww := make(map[string]WorrySeverity)
+	for sev, words := range c.WorryWords {
+		for _, word := range words {
+			ww[word] = worryWordConfigSeverity[sev]
+		}
+	}
+
+	if len(ww) == 0 {
+		return
+	}
+
+	WorryWords = ww
+}
+
 // IsWordCharacter matches letters, digits, marks, and combining punctuation.
 // That is, given a rune, this returns true if and only if the rune is included
-// in one or more of these unicode range categories: L, N, M, and Pc.
+// in one or more of these Unicode range categories: L, N, M, and Pc.
 func IsWordCharacter(c rune) bool {
 	return unicode.Is(unicode.L, c) || unicode.Is(unicode.N, c) || unicode.Is(unicode.M, c) || unicode.Is(unicode.Pc, c)
 }
