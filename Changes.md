@@ -1,4 +1,4 @@
-## WIP  TBD
+## 0.2.0  2025-07-31
 
  * Added the `.logfmt.yaml` configuration file. All command-line features are configurable through this file. In addition, the colors and worry words are configurable via this file as well.
  * Added extra information about configuration to `--help`
