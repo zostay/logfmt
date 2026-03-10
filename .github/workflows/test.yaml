@@ -17,7 +17,7 @@ jobs:
           cache: false
       - uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.3.0
+          version: v2.4.0
       - run: go test -v ./...
       - run: |
           coveredFiles=$(go list ./... | grep -v 'github.com/zostay/today/\(cmd\|tools/gen/verses\)')
