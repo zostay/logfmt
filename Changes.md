@@ -1,3 +1,12 @@
+## 0.2.1  2026-03-09
+
+ * Upgraded Go from v1.24 to v1.25.
+ * Upgraded golangci-lint to v2.4.0 to support Go 1.25.
+ * Updated software dependencies:
+   * github.com/spf13/cobra (v1.9.1 -> v1.10.2)
+   * github.com/spf13/viper (v1.20.1 -> v1.21.0)
+   * golang.org/x/sys (v0.35.0 -> v0.42.0)
+
 ## 0.2.0  2025-07-31
 
  * Added the `.logfmt.yaml` configuration file. All command-line features are configurable through this file. In addition, the colors and worry words are configurable via this file as well.
