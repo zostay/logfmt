@@ -1,3 +1,7 @@
+## Unreleased  2026-05-30
+
+ * Merged Dependabot PR #43: chore(deps): bump golang.org/x/sys from 0.44.0 to 0.45.0
+
 ## 0.2.1  2026-03-09
 
  * Upgraded Go from v1.24 to v1.25.
