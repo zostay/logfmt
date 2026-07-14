@@ -1,3 +1,7 @@
+## Unreleased  2026-07-14
+
+ * Merged Dependabot PR #49: chore(deps): bump golang.org/x/sys from 0.46.0 to 0.47.0
+
 ## Unreleased  2026-06-30
 
  * Merged Dependabot PR #45: chore(deps): bump golang.org/x/sys from 0.45.0 to 0.46.0
