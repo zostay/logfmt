@@ -1,3 +1,8 @@
+## Unreleased  2026-08-12
+
+ * Fixed the CI coverage step, which filtered the package list on the wrong module path (`github.com/zostay/today`).
+ * Merged the CI test and coverage steps into a single `go test -v ./... -coverprofile=coverage.out` run, so the suite is no longer run twice.
+
 ## Unreleased  2026-07-20
 
  * Merged Dependabot PR #51: chore(deps): bump actions/setup-go from 6 to 7
