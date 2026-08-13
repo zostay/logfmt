@@ -45,10 +45,10 @@ go test -v ./...       # Verbose test output
 
 ### Linting
 ```bash
-golangci-lint run      # Run linter (requires golangci-lint v2.3.0+)
+golangci-lint run      # Run linter (requires golangci-lint v2.4.0+)
 ```
 
-The project uses golangci-lint in CI with specific version v2.3.0. Local development should use compatible versions.
+The project uses golangci-lint in CI with specific version v2.4.0. Local development should use compatible versions.
 
 ### Coverage
 ```bash
