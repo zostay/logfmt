@@ -1,35 +1,14 @@
-## Unreleased  2026-08-13
+## 0.3.0  2026-08-13
 
- * Fixed tty detection, which was inverted: `--color=auto` (the default) treated a terminal as a non-terminal and vice versa. As a workaround, `auto` had been forced to `on`, so ANSI escapes were written even when output was piped or redirected to a file.
- * `--color=auto` now detects the actual output destination, so `-o file` is no longer colorized when standard output happens to be a terminal. Use `--color=on` to force color when piping into a pager such as `less -R`.
- * Fixed `-o`/`--output`, which opened the output file read-only. Every write failed and the error was discarded, so the file was left empty and logfmt still exited 0. Appending with `-a` did not create the file if it was missing.
- * Fixed the error message for an unopenable output file, which formatted the nil file handle instead of the file name.
- * An unrecognized `--color` value (or `colorize` setting) is now an error listing the valid modes, instead of being silently treated as `auto`. The check runs before the output file is opened, so a typo no longer truncates an existing `-o` file.
+ * Fixed tty detection for `--color=auto`, the default mode. The check was inverted, so a terminal was treated as a non-terminal and a pipe as a terminal. Because of that, `auto` had been forced to always colorize, and ANSI escape sequences were written even when output was piped or redirected into a file. Color is now enabled only when the output really is a terminal. To force color when piping into a pager such as `less -R`, use `--color=on`.
+ * `--color=auto` now inspects the actual output destination, so `-o file` is no longer colorized just because standard output happens to be a terminal.
+ * `--color=auto` now honors the custom palette from `.logfmt.yaml` instead of always using the built-in palette.
+ * Fixed `-o`/`--output`, which opened the output file read-only. Every write failed, the error was discarded, and logfmt left an empty file behind while still exiting successfully. Appending with `-a` also failed to create the file when it did not already exist.
+ * An unrecognized `--color` value, or `colorize` setting in `.logfmt.yaml`, is now an error listing the valid modes instead of being silently treated as `auto`. The value is checked before the output file is opened, so a typo no longer truncates an existing `-o` file.
+ * Fixed the error message shown when the output file cannot be opened, which formatted the nil file handle rather than the file name.
  * Error messages written to standard error now end with a newline.
- * `--color=auto` now honors the custom palette from `.logfmt.yaml` instead of always using the default palette.
-
-## Unreleased  2026-08-12
-
- * Fixed the CI coverage step, which filtered the package list on the wrong module path (`github.com/zostay/today`).
- * Merged the CI test and coverage steps into a single `go test -v ./... -coverprofile=coverage.out` run, so the suite is no longer run twice.
-
-## Unreleased  2026-07-20
-
- * Merged Dependabot PR #51: chore(deps): bump actions/setup-go from 6 to 7
-
-## Unreleased  2026-07-14
-
- * Merged Dependabot PR #49: chore(deps): bump golang.org/x/sys from 0.46.0 to 0.47.0
-
-## Unreleased  2026-06-30
-
- * Merged Dependabot PR #45: chore(deps): bump golang.org/x/sys from 0.45.0 to 0.46.0
- * Merged Dependabot PR #46: chore(deps): bump actions/checkout from 6 to 7
-
-## Unreleased  2026-05-30
-
- * Merged Dependabot PR #43: chore(deps): bump golang.org/x/sys from 0.44.0 to 0.45.0
- * Merged Dependabot PR #39: chore(deps): bump golang.org/x/sys from 0.43.0 to 0.44.0.
+ * Updated golang.org/x/sys (v0.43.0 -> v0.47.0).
+ * Fixed the CI coverage step, which filtered the package list on the wrong module path, and merged the duplicate test runs into one.
 
 ## 0.2.1  2026-03-09
 
