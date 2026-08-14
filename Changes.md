@@ -4,6 +4,8 @@
  * `--color=auto` now detects the actual output destination, so `-o file` is no longer colorized when standard output happens to be a terminal. Use `--color=on` to force color when piping into a pager such as `less -R`.
  * Fixed `-o`/`--output`, which opened the output file read-only. Every write failed and the error was discarded, so the file was left empty and logfmt still exited 0. Appending with `-a` did not create the file if it was missing.
  * Fixed the error message for an unopenable output file, which formatted the nil file handle instead of the file name.
+ * An unrecognized `--color` value (or `colorize` setting) is now an error listing the valid modes, instead of being silently treated as `auto`. The check runs before the output file is opened, so a typo no longer truncates an existing `-o` file.
+ * Error messages written to standard error now end with a newline.
  * `--color=auto` now honors the custom palette from `.logfmt.yaml` instead of always using the default palette.
 
 ## Unreleased  2026-08-12

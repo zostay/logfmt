@@ -37,6 +37,29 @@ func TestSetupColorizerMode(t *testing.T) {
 	}
 }
 
+// TestCheckColorizeMode covers the accepted --color values and the rejection of
+// anything else, which previously fell through to auto and silently turned
+// color off on a typo.
+func TestCheckColorizeMode(t *testing.T) {
+	orig := colorize
+	t.Cleanup(func() { colorize = orig })
+
+	for _, mode := range []string{"auto", "on", "off", ""} {
+		colorize = mode
+		assert.NoError(t, checkColorizeMode(), "%q is a valid mode", mode)
+	}
+
+	for _, mode := range []string{"bogus", "ON", "yes", "true", "aut"} {
+		colorize = mode
+
+		err := checkColorizeMode()
+
+		require.Error(t, err, "%q is rejected", mode)
+		assert.Contains(t, err.Error(), mode, "error names the bad mode")
+		assert.Contains(t, err.Error(), "auto, on, off", "error lists the valid modes")
+	}
+}
+
 // TestSetupOutputWritesToFile guards against the output file being opened
 // read-only: writes then fail with EBADF, and because the callers in output.go
 // discard write errors, -o produced an empty file and exited 0.
