@@ -48,7 +48,8 @@ go test ./... && golangci-lint run
 ```
 
 Stop and tell the user if the tree is dirty or master is red. Do not release
-from a branch other than `master`.
+from a branch other than `master`. If the master run is still `in_progress`,
+either wait for it or note explicitly that you proceeded without it.
 
 Confirm there is something to release: `Changes.md` should have at least one
 `## Unreleased` section. If it does not, stop — there is nothing to cut.
@@ -82,10 +83,12 @@ ref with `grep -Eo '[0-9]+\.[0-9]+\.[0-9]+.*$'`.
 
 ### 4. Update the version and changelog
 
-Write the bare version into `version.txt` (keep the trailing newline):
+Write the bare version into `version.txt` (keep the trailing newline). Use `>|`
+rather than `>`: this shell has `noclobber` set, so a plain `>` onto an existing
+file stops and waits for an interactive `overwrite?` answer.
 
 ```bash
-echo "X.Y.Z" > version.txt
+printf '%s\n' "X.Y.Z" >| version.txt
 ```
 
 Then **consolidate every `## Unreleased` section in `Changes.md` into a single
@@ -102,12 +105,37 @@ related entries, and keep the wording user-facing. These bullets are published
 verbatim as the GitHub release body. No `## Unreleased` heading may remain above
 the new version heading.
 
-Verify before committing:
+Verify before committing, by running the same checks the workflows run:
 
 ```bash
-head -n1 Changes.md      # exactly: ## X.Y.Z  YYYY-MM-DD  (two spaces)
-cat version.txt
+RELEASE_VERSION=X.Y.Z
+grep -q "$RELEASE_VERSION" version.txt && echo "version.txt PASS"
+date=$(TZ=America/Chicago date "+%Y-%m-%d")
+[ "$(head -n1 Changes.md)" = "## $RELEASE_VERSION  $date" ] && echo "heading PASS"
+grep -c '^## Unreleased' Changes.md    # must be 0
 ```
+
+Preview the release body — this is published verbatim, so read it before it
+ships. The workflow's `sed` script is GNU-only and fails on macOS, so use awk
+locally:
+
+```bash
+awk '/^## [0-9]/{n++; if(n==2) exit; next} n==1' Changes.md
+```
+
+Then dry-run the three cross-builds locally, so a build failure surfaces here
+instead of in CI. Note that zsh does not word-split unquoted parameters, so
+write these out rather than looping over `"linux amd64"`-style pairs:
+
+```bash
+GOOS=linux  GOARCH=amd64 go build -o /tmp/logfmt-linux-amd64  ./
+GOOS=darwin GOARCH=arm64 go build -o /tmp/logfmt-darwin-arm64 ./
+GOOS=darwin GOARCH=amd64 go build -o /tmp/logfmt-darwin-amd64 ./
+go run . --version    # should print the new version
+```
+
+Remove any stray `logfmt` binary a bare `go build ./...` leaves in the repo root
+before committing — it is not gitignored.
 
 ### 5. Commit and push the release branch
 
@@ -174,7 +202,21 @@ Confirm the release exists, **is not a draft**, and has all three binaries:
 - `logfmt-X.Y.Z-darwin-arm64`
 - `logfmt-X.Y.Z-darwin-amd64`
 
-Check the release body matches the changelog section.
+Then confirm the published artifact actually works, rather than trusting that a
+green workflow means a good binary:
+
+```bash
+gh release download vX.Y.Z -p 'logfmt-X.Y.Z-darwin-arm64' -D /tmp/rel
+chmod +x /tmp/rel/logfmt-X.Y.Z-darwin-arm64
+/tmp/rel/logfmt-X.Y.Z-darwin-arm64 --version    # must print the new version
+```
+
+Check the release body matches the changelog section:
+
+```bash
+gh release view vX.Y.Z --json body --jq .body | sed '/^$/d' > /tmp/body.txt
+awk '/^## [0-9]/{n++; if(n==2) exit; next} n==1' Changes.md | sed '/^$/d' | diff - /tmp/body.txt
+```
 
 ### 10. Report
 
