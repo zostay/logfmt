@@ -130,7 +130,9 @@ func onErrReportAndQuit(err error) {
 }
 
 // setupColorizer builds the colorizer for output. In "auto" mode, color is
-// enabled only when output is a terminal.
+// enabled only when output is a terminal, which requires output to be the
+// *os.File returned by setupOutput. Wrapping it (in a bufio.Writer, say) would
+// hide the descriptor and silently disable color in the default mode.
 func setupColorizer(output io.Writer) *SugaredColorizer {
 	// Get custom palette from config
 	palette := DefaultPalette
