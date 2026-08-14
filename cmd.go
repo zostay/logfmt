@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -106,15 +107,15 @@ func setupOutput() (io.Writer, error) {
 	var output io.Writer = os.Stdout
 	if outputFile != "" && outputFile != "-" {
 		var err error
-		flags := os.O_CREATE
+		flags := os.O_CREATE | os.O_WRONLY | os.O_TRUNC
 		mode := "create"
 		if appendToFile {
-			flags = os.O_APPEND
+			flags = os.O_CREATE | os.O_WRONLY | os.O_APPEND
 			mode = "append to"
 		}
 		output, err = os.OpenFile(outputFile, flags, 0644)
 		if err != nil {
-			return nil, fmt.Errorf("failed to %s %q: %v", mode, output, err)
+			return nil, fmt.Errorf("failed to %s %q: %v", mode, outputFile, err)
 		}
 	}
 
@@ -124,17 +125,33 @@ func setupOutput() (io.Writer, error) {
 // onErrReportAndQuit handles an error by writing it to standard error and exiting.
 func onErrReportAndQuit(err error) {
 	if err != nil {
-		_, _ = fmt.Fprint(os.Stderr, err)
+		_, _ = fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func setupColorizer() *SugaredColorizer {
-	// FIXME tty detection is broken, so...
-	if colorize == "auto" {
-		colorize = "on"
-	}
+// colorModes are the accepted --color values. An empty value means the mode
+// was never set, which behaves as auto.
+var colorModes = []string{"auto", "on", "off"}
 
+// checkColorizeMode rejects an unrecognized --color value. It is checked before
+// the output file is opened, so a typo does not truncate an existing file.
+func checkColorizeMode() error {
+	switch colorize {
+	case "off", "on", "auto", "":
+		return nil
+	}
+	return fmt.Errorf("invalid --color mode %q: expected one of %s", colorize, strings.Join(colorModes, ", "))
+}
+
+// setupColorizer builds the colorizer for output. In "auto" mode, color is
+// enabled only when output is a terminal, which requires output to be the
+// *os.File returned by setupOutput. Wrapping it (in a bufio.Writer, say) would
+// hide the descriptor and silently disable color in the default mode.
+//
+// The mode is expected to have passed checkColorizeMode already, so an
+// unrecognized value falls through to auto rather than being rejected here.
+func setupColorizer(output io.Writer) *SugaredColorizer {
 	// Get custom palette from config
 	palette := DefaultPalette
 	if config != nil {
@@ -152,7 +169,7 @@ func setupColorizer() *SugaredColorizer {
 	case "on":
 		colorizer = NewSugaredColorizer(NewColorOn(palette))
 	default:
-		colorizer = NewSugaredColorizer(NewColorAuto())
+		colorizer = NewSugaredColorizer(NewColorAuto(palette, output))
 	}
 	return colorizer
 }
@@ -190,13 +207,17 @@ func formatLogLines(cmd *cobra.Command, args []string) {
 
 	setupWorries(config)
 
+	// Check this before opening the output file, so an invalid mode does not
+	// truncate an existing file on the way to the error.
+	onErrReportAndQuit(checkColorizeMode())
+
 	input, err := setupInput(args)
 	onErrReportAndQuit(err)
 
 	output, err := setupOutput()
 	onErrReportAndQuit(err)
 
-	colorizer := setupColorizer()
+	colorizer := setupColorizer(output)
 
 	buffed := bufio.NewScanner(input)
 	for buffed.Scan() {

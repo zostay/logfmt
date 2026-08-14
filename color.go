@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	gc "image/color"
+	"io"
 	"os"
 	"strings"
 
@@ -81,22 +82,33 @@ func (rc *RawColorizer) C(c gc.Color, v ...any) string {
 	return color.RGBA(gc.RGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: uint8(a >> 8)}).Sprint(v...)
 }
 
+// isTerminal reports whether w writes to a terminal. Anything that is not an
+// open file (a buffer, a network connection) is never a terminal. For files,
+// the window-size ioctl succeeds only on a terminal device, which distinguishes
+// a terminal from a pipe, a regular file, and character devices like /dev/null.
+func isTerminal(w io.Writer) bool {
+	f, ok := w.(*os.File)
+	if !ok {
+		return false
+	}
+
+	_, err := unix.IoctlGetWinsize(int(f.Fd()), unix.TIOCGWINSZ)
+	return err == nil
+}
+
 type ColorAuto struct {
 	on  *ColorOn
 	off *ColorOff
 	tty bool
 }
 
-func NewColorAuto() *ColorAuto {
-	ca := ColorAuto{
-		on:  NewColorOn(DefaultPalette),
+// NewColorAuto builds a colorizer that emits color only when out is a terminal.
+func NewColorAuto(p Palette, out io.Writer) *ColorAuto {
+	return &ColorAuto{
+		on:  NewColorOn(p),
 		off: &ColorOff{},
+		tty: isTerminal(out),
 	}
-
-	_, err := unix.IoctlGetWinsize(int(os.Stdout.Fd()), unix.TIOCGWINSZ)
-	ca.tty = err != nil
-
-	return &ca
 }
 
 func (ca *ColorAuto) C(c ColorName, v ...any) string {
