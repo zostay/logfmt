@@ -106,15 +106,15 @@ func setupOutput() (io.Writer, error) {
 	var output io.Writer = os.Stdout
 	if outputFile != "" && outputFile != "-" {
 		var err error
-		flags := os.O_CREATE
+		flags := os.O_CREATE | os.O_WRONLY | os.O_TRUNC
 		mode := "create"
 		if appendToFile {
-			flags = os.O_APPEND
+			flags = os.O_CREATE | os.O_WRONLY | os.O_APPEND
 			mode = "append to"
 		}
 		output, err = os.OpenFile(outputFile, flags, 0644)
 		if err != nil {
-			return nil, fmt.Errorf("failed to %s %q: %v", mode, output, err)
+			return nil, fmt.Errorf("failed to %s %q: %v", mode, outputFile, err)
 		}
 	}
 
