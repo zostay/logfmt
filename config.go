@@ -225,7 +225,7 @@ CONFIGURATION OPTIONS:
 Output Options:
   output_file: "-"              # Output file ("-" for stdout)  
   append_to_file: false         # Append to output file
-  colorize: "auto"              # Color mode: "auto", "on", "off"
+  colorize: "auto"              # Color mode: "auto" (color only on a terminal), "on", "off"
 
 Processing Options:
   highlight_worry_words: true   # Highlight error/warning keywords

@@ -129,12 +129,9 @@ func onErrReportAndQuit(err error) {
 	}
 }
 
-func setupColorizer() *SugaredColorizer {
-	// FIXME tty detection is broken, so...
-	if colorize == "auto" {
-		colorize = "on"
-	}
-
+// setupColorizer builds the colorizer for output. In "auto" mode, color is
+// enabled only when output is a terminal.
+func setupColorizer(output io.Writer) *SugaredColorizer {
 	// Get custom palette from config
 	palette := DefaultPalette
 	if config != nil {
@@ -152,7 +149,7 @@ func setupColorizer() *SugaredColorizer {
 	case "on":
 		colorizer = NewSugaredColorizer(NewColorOn(palette))
 	default:
-		colorizer = NewSugaredColorizer(NewColorAuto())
+		colorizer = NewSugaredColorizer(NewColorAuto(palette, output))
 	}
 	return colorizer
 }
@@ -196,7 +193,7 @@ func formatLogLines(cmd *cobra.Command, args []string) {
 	output, err := setupOutput()
 	onErrReportAndQuit(err)
 
-	colorizer := setupColorizer()
+	colorizer := setupColorizer(output)
 
 	buffed := bufio.NewScanner(input)
 	for buffed.Scan() {

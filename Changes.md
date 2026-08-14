@@ -1,3 +1,9 @@
+## Unreleased  2026-08-13
+
+ * Fixed tty detection, which was inverted: `--color=auto` (the default) treated a terminal as a non-terminal and vice versa. As a workaround, `auto` had been forced to `on`, so ANSI escapes were written even when output was piped or redirected to a file.
+ * `--color=auto` now detects the actual output destination, so `-o file` is no longer colorized when standard output happens to be a terminal. Use `--color=on` to force color when piping into a pager such as `less -R`.
+ * `--color=auto` now honors the custom palette from `.logfmt.yaml` instead of always using the default palette.
+
 ## Unreleased  2026-08-12
 
  * Fixed the CI coverage step, which filtered the package list on the wrong module path (`github.com/zostay/today`).
