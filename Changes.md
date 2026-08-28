@@ -1,3 +1,8 @@
+## Unreleased
+
+ * Updated software dependencies:
+   * github.com/stretchr/testify (v1.11.1 -> v1.12.1)
+
 ## 0.3.0  2026-08-13
 
  * Fixed tty detection for `--color=auto`, the default mode. The check was inverted, so a terminal was treated as a non-terminal and a pipe as a terminal. Because of that, `auto` had been forced to always colorize, and ANSI escape sequences were written even when output was piped or redirected into a file. Color is now enabled only when the output really is a terminal. To force color when piping into a pager such as `less -R`, use `--color=on`.
