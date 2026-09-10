@@ -240,7 +240,7 @@ Issues and pull requests are welcome at
 
 ```bash
 make test              # or: go test ./...
-golangci-lint run      # requires golangci-lint v2.4.0+
+golangci-lint run      # requires golangci-lint v2.13.2+
 make install           # install to $GOPATH/bin
 ```
 

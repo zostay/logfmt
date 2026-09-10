@@ -2,6 +2,9 @@
 
  * Updated software dependencies:
    * github.com/stretchr/testify (v1.11.1 -> v1.12.1)
+   * golang.org/x/sys (v0.47.0 -> v0.48.0)
+ * Upgraded Go from v1.25 to v1.26, which golang.org/x/sys v0.48.0 requires.
+ * Upgraded golangci-lint in CI from v2.4.0 to v2.13.2, since v2.4.0 is built with Go 1.25 and refuses to lint a module targeting Go 1.26.
 
 ## 0.3.0  2026-08-13
 

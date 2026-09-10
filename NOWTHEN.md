@@ -29,5 +29,5 @@ America/Chicago* at the moment the workflow runs — so a release straddling the
 Central midnight fails at the tag even though the branch passed.
 
 `make test` runs `go test ./...`. CI also runs `golangci-lint` (pinned to
-v2.4.0) and a coverage gate that is currently set to `REQUIRED_COVERAGE: 0`, so
+v2.13.2) and a coverage gate that is currently set to `REQUIRED_COVERAGE: 0`, so
 coverage is reported but not enforced.
